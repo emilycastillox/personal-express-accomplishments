@@ -31,19 +31,19 @@ app.get('/', (req, res) => {
 })
 
 app.post('/items', (req, res) => {
-  db.collection('list').insertOne({date: req.body.date, msg: req.body.msg }, (err, result) => {
+  db.collection('list').insertOne({date: req.body.date, msg: req.body.msg, favorited:false }, (err, result) => {
     if (err) return console.log(err)
     console.log('saved to database')
     res.redirect('/')
   })
 })
 
-app.put('/thumbsUp', (req, res) => {
+app.put('/favorites', (req, res) => {
   console.log(req.body)
-  db.collection('messages')
-  .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
+  db.collection('list')
+  .findOneAndUpdate({date: req.body.date, msg: req.body.msg}, {
     $set: {
-      thumbUp:req.body.likes + 1
+      favorited: true
     }
   }, {
     sort: {_id: -1},
@@ -53,21 +53,21 @@ app.put('/thumbsUp', (req, res) => {
     res.send(result)
   })
 })
-app.put('/thumbsDown', (req, res) => {
-  console.log(req.body)
-  db.collection('messages')
-  .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
-    $set: {
-      thumbUp:req.body.likes - 1
-    }
-  }, {
-    sort: {_id: -1},
-    upsert: true
-  }, (err, result) => {
-    if (err) return res.send(err)
-    res.send(result)
-  })
-})
+// app.put('/thumbsDown', (req, res) => {
+//   console.log(req.body)
+//   db.collection('messages')
+//   .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
+//     $set: {
+//       thumbUp:req.body.likes - 1
+//     }
+//   }, {
+//     sort: {_id: -1},
+//     upsert: true
+//   }, (err, result) => {
+//     if (err) return res.send(err)
+//     res.send(result)
+//   })
+// })
 
 app.delete('/items', (req, res) => {
   db.collection('list').findOneAndDelete({date: req.body.date,  msg: req.body.msg}, (err, result) => {
